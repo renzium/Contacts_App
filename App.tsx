@@ -26,6 +26,7 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 import {PermissionsAndroid} from 'react-native';
 import Contacts from 'react-native-contacts';
+import ContactsList from './components/ContactList';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -64,29 +65,6 @@ function App(): JSX.Element {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
-  // const init = () => {
-  //   PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
-  //     title: 'Contacts',
-  //     message: 'This app would like to view your contacts.',
-  //     buttonPositive: 'Please accept bare mortal',
-  //   });
-  //   // .then(
-  //   //   Contacts.getAll()
-  //   //     .then(contacts => {
-  //   //       // work with contacts
-  //   //       console.log(contacts);
-  //   //     })
-  //   //     .catch(e => {
-  //   //       console.log(e);
-  //   //     }),
-  //   // );
-  //   Contacts.getAll().then(contacts => {
-  //     // contacts returned
-  //     console.log(contacts);
-  //   });
-  // };
-  // init();
-
   const [contacts, setContacts] = useState<any>([]);
 
   async function hasAndroidPermission() {
@@ -99,56 +77,62 @@ function App(): JSX.Element {
     const status = await PermissionsAndroid.request(permission);
     return status === 'granted';
   }
-  // hasAndroidPermission();
+  //Below a second parameter was passed to the request method so to customized the 'accept' or 'reject' button
+  /*
+    const status = await PermissionsAndroid.request(permission, {
+      title: 'Contacts',
+      message: 'Cydene would like to access your contacts.',
+      buttonPositive: 'Accept',
+      buttonNegative: 'Don\'t',
+    });
+    return status === 'granted';
+  }
+  */
 
   //load contact works
   const loadContacts = async () => {
-    await Contacts.getAll().then(contacts => {
-      setContacts(contacts);
-      console.warn(contacts);
-    });
     if (await hasAndroidPermission()) {
       Contacts.getAll().then(contacts => {
         setContacts(contacts);
-        console.warn(contacts);
+        console.log(contacts);
       });
     }
     return;
   };
 
   useEffect(() => {
-    hasAndroidPermission();
+    loadContacts();
   }, []);
 
-  useEffect(() => {
-    loadContacts();
-  }, [hasAndroidPermission]);
-
-  //getContacts works
-  const getAllContact = () => {
-    PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
-      title: 'Contacts',
-      message: 'Cydene would like to access your contacts.',
-      buttonPositive: 'Please accept bare mortal',
-    });
-    loadContacts();
-    // .then(Contacts.getAll)
-    // .then(contacts => {
-    //   console.warn('???>>>>> contactsssss', contacts);
-    // });
+  const aContactItem = {
+    phoneNumbers: [
+      {id: '180976', label: 'mobile', number: '0803 101 2115'},
+      {id: '181031', label: 'mobile', number: '08031012115'},
+    ],
+    isStarred: false,
+    postalAddresses: [],
+    thumbnailPath: '',
+    department: '',
+    jobTitle: '',
+    emailAddresses: [],
+    urlAddresses: [],
+    suffix: null,
+    company: '',
+    imAddresses: [],
+    note: '',
+    middleName: '',
+    displayName: 'Dr. Stone Lion',
+    familyName: 'Lion',
+    givenName: 'Dr. Stone',
+    prefix: null,
+    hasThumbnail: false,
+    rawContactId: '61079',
+    recordID: '63130',
   };
-  getAllContact();
 
-  useEffect(() => {
-    const getCon = async () => {
-      console.log('statt get contacts');
-      const allContant = await Contacts.getAll();
-      console.error('allContact', allContant);
-    };
+  /*
 
-    getCon();
-    getAllContact();
-  }, []);
+  */
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -160,12 +144,9 @@ function App(): JSX.Element {
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
         <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Text>Hello world</Text>
-        </View>
+        <Text>CONTACTS</Text>
+
+        {contacts && <ContactsList contacts={contacts} />}
       </ScrollView>
     </SafeAreaView>
   );

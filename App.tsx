@@ -5,7 +5,7 @@
  * @format
  */
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -24,6 +24,8 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+import {PermissionsAndroid} from 'react-native';
+import Contacts from 'react-native-contacts';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -62,6 +64,92 @@ function App(): JSX.Element {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
+  // const init = () => {
+  //   PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
+  //     title: 'Contacts',
+  //     message: 'This app would like to view your contacts.',
+  //     buttonPositive: 'Please accept bare mortal',
+  //   });
+  //   // .then(
+  //   //   Contacts.getAll()
+  //   //     .then(contacts => {
+  //   //       // work with contacts
+  //   //       console.log(contacts);
+  //   //     })
+  //   //     .catch(e => {
+  //   //       console.log(e);
+  //   //     }),
+  //   // );
+  //   Contacts.getAll().then(contacts => {
+  //     // contacts returned
+  //     console.log(contacts);
+  //   });
+  // };
+  // init();
+
+  const [contacts, setContacts] = useState<any>([]);
+
+  async function hasAndroidPermission() {
+    const permission = PermissionsAndroid.PERMISSIONS.READ_CONTACTS;
+    const hasPermission = await PermissionsAndroid.check(permission);
+    if (hasPermission) {
+      console.log('has permission');
+      return true;
+    }
+    const status = await PermissionsAndroid.request(permission);
+    return status === 'granted';
+  }
+  // hasAndroidPermission();
+
+  //load contact works
+  const loadContacts = async () => {
+    await Contacts.getAll().then(contacts => {
+      setContacts(contacts);
+      console.warn(contacts);
+    });
+    if (await hasAndroidPermission()) {
+      Contacts.getAll().then(contacts => {
+        setContacts(contacts);
+        console.warn(contacts);
+      });
+    }
+    return;
+  };
+
+  useEffect(() => {
+    hasAndroidPermission();
+  }, []);
+
+  useEffect(() => {
+    loadContacts();
+  }, [hasAndroidPermission]);
+
+  //getContacts works
+  const getAllContact = () => {
+    PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
+      title: 'Contacts',
+      message: 'Cydene would like to access your contacts.',
+      buttonPositive: 'Please accept bare mortal',
+    });
+    loadContacts();
+    // .then(Contacts.getAll)
+    // .then(contacts => {
+    //   console.warn('???>>>>> contactsssss', contacts);
+    // });
+  };
+  getAllContact();
+
+  useEffect(() => {
+    const getCon = async () => {
+      console.log('statt get contacts');
+      const allContant = await Contacts.getAll();
+      console.error('allContact', allContant);
+    };
+
+    getCon();
+    getAllContact();
+  }, []);
+
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar
@@ -76,20 +164,7 @@ function App(): JSX.Element {
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+          <Text>Hello world</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
